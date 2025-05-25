@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulseTrack - ED Discharge Culture Review</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            background-color: #e8e8e8;
+            min-height: 100vh;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .space-x-6 > * + * {
+            margin-left: 24px;
+        }
+
+        .space-x-4 > * + * {
+            margin-left: 16px;
+        }
+
+        .space-x-2 > * + * {
+            margin-left: 8px;
+        }
+
+        .min-h-screen {
+            min-height: 100vh;
+        }
+
+        .overflow-hidden {
+            overflow: hidden;
+        }
+
+        .fixed {
+            position: fixed;
+        }
+
+        .inset-0 {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .bg-black {
+            background-color: black;
+        }
+
+        .bg-opacity-30 {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .bg-opacity-50 {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .z-50 {
+            z-index: 50;
+        }
+
+        .w-3 {
+            width: 0.75rem;
+        }
+
+        .h-3 {
+            height: 0.75rem;
+        }
+
+        .w-5 {
+            width: 1.25rem;
+        }
+
+        .h-5 {
+            height: 1.25rem;
+        }
+
+        .inline {
+            display: inline;
+        }
+
+        .mr-1 {
+            margin-right: 0.25rem;
+        }
+
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+
+        /* Epic specific styles */
+        .epic-button {
+            background: linear-gradient(to bottom, #f9f9f9 0%, #e9e9e9 100%);
+            border: 1px solid #a0a0a0;
+            border-radius: 3px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            color: #000;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .epic-button:hover {
+            background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
+        }
+
+        .epic-button.active {
+            background: linear-gradient(to bottom, #dde9f7 0%, #b9d1eb 100%);
+            border: 1px solid #5a8bc4;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen" style="background-color: #e8e8e8; font-family: Arial, sans-serif; font-size: 12px;">
+        <!-- Epic Top Banner -->
+        <div style="background-color: #1a4e8b; color: white; padding: 2px 8px; font-size: 11px;">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <span style="font-weight: bold;">Epic - Production</span>
+                    <span>PRD</span>
+                    <span>JOHNSON,SARAH M (MRN: 45892)</span>
+                    <span>43y F</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span>Smith, Jane RN</span>
+                    <span>HB Emergency</span>
+                    <span>5/23/2025 10:45 AM</span>
+                    <button style="color: white; text-decoration: underline; background: none; border: none; cursor: pointer;">
+                        Log Out
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Epic Toolbar -->
+        <div style="background-color: #f0f0f0; border-bottom: 1px solid #b0b0b0; padding: 2px;">
+            <div class="flex items-center">
+                <button class="epic-button">
+                    <span style="font-size: 10px;">⌂</span> Home
+                </button>
+                <div style="width: 1px; height: 20px; background-color: #b0b0b0; margin: 0 2px;"></div>
+                <button class="epic-button">Chart Review</button>
+                <button class="epic-button">Notes</button>
+                <button class="epic-button">Results Review</button>
+                <button class="epic-button">Orders</button>
+                <button class="epic-button">MAR</button>
+                <button class="epic-button">Patient Lists</button>
+                <button class="epic-button active">
+                    <span style="color: #ff6600; font-weight: bold;">⚠</span> Culture Follow-up
+                </button>
+                <div class="flex-1"></div>
+                <button class="epic-button">
+                    ↻ Refresh
+                </button>
+                <button class="epic-button">Tools</button>
+            </div>
+        </div>
+
+        <!-- Epic Navigator Area -->
+        <div class="flex" style="height: calc(100vh - 60px);">
+            <!-- Left Navigator -->
+            <div style="width: 200px; background-color: #f5f5f5; border-right: 1px solid #c0c0c0;">
+                <div style="background-color: #dde9f7; padding: 4px; border-bottom: 1px solid #b0b0b0; font-weight: bold; font-size: 11px;">
+                    Activities
+                </div>
+                <div style="padding: 2px;">
+                    <div style="padding: 4px 8px; cursor: pointer; font-size: 11px;">Storyboard</div>
+                    <div style="padding: 4px 8px; cursor: pointer; font-size: 11px;">Patient Lists</div>
+                    <div style="padding: 4px 8px; cursor: pointer; font-size: 11px;">In Basket</div>
+                    <div style="background-color: #ffd4a3; padding: 4px 8px; font-weight: bold; font-size: 11px; cursor: pointer;">
+                        <span style="color: #ff6600;">⚠</span> Culture Follow-up (2)
+                    </div>
+                    <div style="padding: 4px 8px; cursor: pointer; font-size: 11px;">Schedule</div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 overflow-hidden" style="background-color: white;">
+                <!-- PulseTrack Header -->
+                <div style="background-color: #f8f8f8; border-bottom: 2px solid #c0c0c0; padding: 8px;">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <h1 style="font-size: 14px; font-weight: bold; color: #1a4e8b;">
+                                PulseTrack - ED Discharge Culture Review
+                            </h1>
+                            <span id="alertBadge" style="margin-left: 12px; background-color: #ff6600; color: white; padding: 2px 8px; font-size: 11px; font-weight: bold; border-radius: 2px; animation: pulse 2s infinite;">
+                                2 RESISTANT CULTURES - ACTION REQUIRED
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span style="font-size: 11px; color: #666;">Auto-refresh: ON</span>
+                            <button class="epic-button">⚙ Options</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div style="background-color: #f0f0f0; border-bottom: 1px solid #d0d0d0; padding: 4px 8px;">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <label style="font-size: 11px; margin-right: 4px;">Filter:</label>
+                            <select id="filterSelect" style="font-size: 11px; border: 1px solid #a0a0a0; background-color: white; padding: 1px 4px;">
+                                <option value="all">All Results</option>
+                                <option value="flagged" selected>Resistant Only</option>
+                                <option value="satisfied">Sensitive Only</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center">
+                            <label style="font-size: 11px; margin-right: 4px;">Date:</label>
+                            <input type="date" style="font-size: 11px; border: 1px solid #a0a0a0; padding: 1px 4px;" value="2025-05-20">
+                            <span style="font-size: 11px; margin: 0 4px;">-</span>
+                            <input type="date" style="font-size: 11px; border: 1px solid #a0a0a0; padding: 1px 4px;" value="2025-05-23">
+                        </div>
+
+                        <div class="flex items-center flex-1">
+                            <input type="text" id="searchInput" placeholder="Search..." style="font-size: 11px; border: 1px solid #a0a0a0; padding: 2px 4px; width: 200px;">
+                        </div>
+
+                        <button class="epic-button">↻</button>
+                    </div>
+                </div>
+
+                <!-- Data Grid -->
+                <div style="height: calc(100% - 100px); overflow: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                        <thead>
+                            <tr style="background-color: #e0e0e0;">
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left; font-weight: normal;">!</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">Patient</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">MRN</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">ED Visit</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">Culture</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">Result</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">Current Rx</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">Sensitivity</th>
+                                <th style="border: 1px solid #b0b0b0; padding: 4px; text-align: left;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTableBody">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Status Bar -->
+                <div style="background-color: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 2px 8px; font-size: 10px; color: #666;">
+                    <span id="statusText">3 items</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Culture Details Modal -->
+    <div class="modal-overlay" id="cultureModal">
+        <div style="width: 900px; background-color: white; border: 2px solid #4a7eba; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+            <div style="background-color: #4a7eba; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                <span id="cultureModalTitle">Microbiology</span>
+                <button onclick="closeCultureModal()" style="color: white; background: none; border: none; font-size: 16px; cursor: pointer;">×</button>
+            </div>
+            <div id="cultureModalContent" style="padding: 8px; max-height: 600px; overflow: auto;">
+                <!-- Content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BPA Alert Modal -->
+    <div class="modal-overlay" id="bpaModal">
+        <div style="width: 800px; background-color: white; border: 3px solid #ff6600; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+            <div style="background-color: #ff6600; color: white; padding: 8px; font-size: 14px; font-weight: bold; display: flex; align-items: center;">
+                ⚠ Best Practice Alert: Antibiotic-Culture Mismatch
+            </div>
+            <div id="bpaModalContent" style="padding: 12px;">
+                <!-- Content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Entry Modal -->
+    <div class="modal-overlay" id="orderModal">
+        <div style="width: 700px; background-color: white; border: 2px solid #4a7eba; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+            <div style="background-color: #4a7eba; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">
+                Orders - Medications
+            </div>
+            <div id="orderModalContent" style="padding: 8px;">
+                <!-- Content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #d4edda; border: 2px solid #28a745; padding: 12px; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 60; min-width: 300px; display: none;">
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">
+            ✓ Orders Signed Successfully
+        </div>
+        <div style="font-size: 11px;">
+            • Prescription sent to pharmacy<br>
+            • Patient notified<br>
+            • Chart updated<br>
+            • Follow-up task created
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let activeTab = "cultures";
+        let activeSection = "flagged";
+        let searchQuery = "";
+        let selectedPatient = null;
+        let showRecommendation = false;
+        let showDocumentation = false;
+        let showCultureDetails = false;
+        let showContactSuccess = false;
+        let documentationNote = "";
+        let selectedAlternative = null;
+        let contactMethod = null;
+        let selectedRow = null;
+
+        // Patient data
+        let patients = [
+            {
+                id: 1,
+                name: "JOHNSON,SARAH M",
+                mrn: "45892",
+                csn: "210847569",
+                fin: "900123456",
+                dob: "03/15/1982",
+                age: "43y",
+                sex: "F",
+                phone: "(555) 123-4567",
+                pcp: "Miller, Susan MD",
+                edVisit: "5/21/25 2:30 PM",
+                dischargeTime: "5/21/25 6:45 PM",
+                chiefComplaint: "UTI symptoms",
+                provider: "Smith, Robert MD",
+                dept: "EMERGENCY-HB",
+                cultureType: "URINE CULTURE",
+                cultureResult: "Escherichia coli",
+                colonyCount: ">100,000 CFU/ML",
+                resultedDate: "5/23/25 9:15 AM",
+                prescribedAntibiotic: "CIPROFLOXACIN 500 MG ORAL TABLET",
+                sensitivity: "RESISTANT",
+                status: "flagged",
+                contacted: false,
+                epicStatus: "Final result",
+                accession: "25-1234567",
+                specimenCollected: "5/21/25 3:45 PM",
+                orderingProvider: "Smith, Robert MD",
+                resistance: {
+                    organism: "Escherichia coli",
+                    gram: "Gram Negative Rod",
+                    resistantTo: [
+                        { drug: "Ciprofloxacin", mic: ">4", interp: "R" },
+                        { drug: "Ampicillin", mic: ">32", interp: "R" },
+                        { drug: "Ampicillin/Sulbactam", mic: ">32", interp: "R" },
+                        { drug: "Trimethoprim/Sulfamethoxazole", mic: ">320", interp: "R" }
+                    ],
+                    sensitiveTo: [
+                        { drug: "Nitrofurantoin", mic: "16", interp: "S" },
+                        { drug: "Ceftriaxone", mic: "<=0.25", interp: "S" },
+                        { drug: "Gentamicin", mic: "<=1", interp: "S" },
+                        { drug: "Cefazolin", mic: "<=4", interp: "S" },
+                        { drug: "Cefepime", mic: "<=1", interp: "S" },
+                        { drug: "Ertapenem", mic: "<=0.5", interp: "S" },
+                        { drug: "Meropenem", mic: "<=0.25", interp: "S" }
+                    ]
+                },
+                alternatives: [
+                    {
+                        drug: "NITROFURANTOIN MACROCRYSTAL",
+                        dose: "100 MG",
+                        route: "ORAL",
+                        frequency: "TWICE DAILY",
+                        duration: "5 DAYS",
+                        sig: "TAKE 1 CAPSULE BY MOUTH TWICE DAILY FOR 5 DAYS",
+                        dispense: "#10 CAPSULES",
+                        efficacy: "98%",
+                        firstLine: true,
+                        formularyStatus: "Formulary",
+                        cost: "$12.00",
+                        notes: "IDSA guideline first-line therapy",
+                        contraindications: "CrCl < 60 mL/min"
+                    },
+                    {
+                        drug: "CEFTRIAXONE",
+                        dose: "1 GM",
+                        route: "INTRAMUSCULAR",
+                        frequency: "ONCE",
+                        duration: "1 DOSE",
+                        sig: "INJECT 1 GRAM INTRAMUSCULARLY ONCE",
+                        dispense: "1 VIAL",
+                        efficacy: "95%",
+                        firstLine: false,
+                        formularyStatus: "Formulary",
+                        cost: "$45.00",
+                        notes: "Single dose therapy",
+                        contraindications: "Severe penicillin allergy"
+                    },
+                    {
+                        drug: "FOSFOMYCIN TROMETHAMINE",
+                        dose: "3 GM",
+                        route: "ORAL",
+                        frequency: "ONCE",
+                        duration: "1 DOSE",
+                        sig: "MIX 1 PACKET IN WATER AND TAKE BY MOUTH ONCE",
+                        dispense: "1 PACKET",
+                        efficacy: "91%",
+                        firstLine: false,
+                        formularyStatus: "Non-formulary",
+                        cost: "$89.00",
+                        notes: "Single dose oral therapy",
+                        contraindications: "None"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: "CHEN,MICHAEL R",
+                mrn: "45893",
+                csn: "210847570",
+                fin: "900123457",
+                dob: "06/22/1965",
+                age: "59y",
+                sex: "M",
+                phone: "(555) 234-5678",
+                pcp: "Johnson, David MD",
+                edVisit: "5/20/25 10:15 PM",
+                dischargeTime: "5/21/25 2:30 AM",
+                chiefComplaint: "Fever, chills",
+                provider: "Jones, Mary MD",
+                dept: "EMERGENCY-HB",
+                cultureType: "BLOOD CULTURE",
+                cultureResult: "NO GROWTH AT 5 DAYS",
+                resultedDate: "5/23/25 8:00 AM",
+                prescribedAntibiotic: "CEFTRIAXONE 1 GM IV",
+                sensitivity: "N/A",
+                status: "satisfied",
+                contacted: true,
+                epicStatus: "Final result"
+            },
+            {
+                id: 3,
+                name: "RODRIGUEZ,EMMA L",
+                mrn: "45894",
+                csn: "210847571",
+                fin: "900123458",
+                dob: "11/30/1990",
+                age: "34y",
+                sex: "F",
+                phone: "(555) 345-6789",
+                pcp: "Anderson, Lisa MD",
+                edVisit: "5/21/25 8:00 AM",
+                dischargeTime: "5/21/25 11:30 AM",
+                chiefComplaint: "Wound infection",
+                provider: "Williams, James MD",
+                dept: "EMERGENCY-HB",
+                cultureType: "WOUND CULTURE",
+                cultureResult: "Staphylococcus aureus (MRSA)",
+                resultedDate: "5/23/25 11:45 AM",
+                prescribedAntibiotic: "CEPHALEXIN 500 MG QID",
+                sensitivity: "RESISTANT",
+                status: "flagged",
+                contacted: false,
+                epicStatus: "Final result",
+                accession: "25-1234568",
+                resistance: {
+                    organism: "Staphylococcus aureus (MRSA)",
+                    gram: "Gram Positive Cocci in Clusters",
+                    resistantTo: [
+                        { drug: "Oxacillin", mic: "R", interp: "R" },
+                        { drug: "Penicillin", mic: "R", interp: "R" },
+                        { drug: "Cephalexin", mic: "R", interp: "R" },
+                        { drug: "Erythromycin", mic: ">8", interp: "R" }
+                    ],
+                    sensitiveTo: [
+                        { drug: "Vancomycin", mic: "1", interp: "S" },
+                        { drug: "Doxycycline", mic: "<=0.5", interp: "S" },
+                        { drug: "Trimethoprim/Sulfamethoxazole", mic: "<=10", interp: "S" },
+                        { drug: "Clindamycin", mic: "<=0.25", interp: "S" },
+                        { drug: "Linezolid", mic: "2", interp: "S" }
+                    ]
+                },
+                alternatives: [
+                    {
+                        drug: "DOXYCYCLINE HYCLATE",
+                        dose: "100 MG",
+                        route: "ORAL",
+                        frequency: "TWICE DAILY",
+                        duration: "10 DAYS",
+                        sig: "TAKE 1 TABLET BY MOUTH TWICE DAILY FOR 10 DAYS",
+                        dispense: "#20 TABLETS",
+                        efficacy: "94%",
+                        firstLine: true,
+                        formularyStatus: "Formulary",
+                        cost: "$15.00",
+                        notes: "MRSA oral therapy",
+                        contraindications: "Pregnancy"
+                    },
+                    {
+                        drug: "SULFAMETHOXAZOLE-TRIMETHOPRIM DS",
+                        dose: "800-160 MG",
+                        route: "ORAL",
+                        frequency: "TWICE DAILY",
+                        duration: "10 DAYS",
+                        sig: "TAKE 2 TABLETS BY MOUTH TWICE DAILY FOR 10 DAYS",
+                        dispense: "#40 TABLETS",
+                        efficacy: "92%",
+                        firstLine: true,
+                        formularyStatus: "Formulary",
+                        cost: "$10.00",
+                        notes: "MRSA oral therapy",
+                        contraindications: "Sulfa allergy"
+                    }
+                ]
+            }
+        ];
+
+        // Epic button style
+        const epicButtonStyle = 'background: linear-gradient(to bottom, #f9f9f9 0%, #e9e9e9 100%); border: 1px solid #a0a0a0; border-radius: 3px; padding: 2px 8px; font-size: 11px; font-family: Arial, sans-serif; cursor: pointer; color: #000; box-shadow: 0 1px 1px rgba(0,0,0,0.1);';
+
+        // Functions
+        function handleViewCulture(patient) {
+            selectedPatient = patient;
+            showCultureDetails = true;
+            renderCultureModal();
+        }
+
+        function handlePrescribeAlternative() {
+            if (selectedAlternative && selectedPatient) {
+                closeBPAModal();
+                showOrderModal();
+            }
+        }
+
+        function handleSendCommunication() {
+            if (!contactMethod) {
+                alert("Please select a contact method");
+                return;
+            }
+
+            patients = patients.map(p =>
+                p.id === selectedPatient.id
+                    ? { ...p, contacted: true, status: "resolved" }
+                    : p
+            );
+
+            closeOrderModal();
+            showSuccessMessage();
+            
+            setTimeout(() => {
+                hideSuccessMessage();
+                selectedPatient = null;
+                selectedAlternative = null;
+                documentationNote = "";
+                contactMethod = null;
+                renderTable();
+            }, 5000);
+        }
+
+        function getFilteredPatients() {
+            return patients.filter(patient => {
+                const matchesSearch = 
+                    patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    patient.mrn.includes(searchQuery);
+
+                if (activeSection === "flagged") {
+                    return matchesSearch && patient.status === "flagged";
+                } else if (activeSection === "satisfied") {
+                    return matchesSearch && patient.status === "satisfied";
+                } else {
+                    return matchesSearch;
+                }
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('patientTableBody');
+            const filteredPatients = getFilteredPatients();
+            
+            tbody.innerHTML = '';
+            
+            filteredPatients.forEach((patient, index) => {
+                const row = document.createElement('tr');
+                row.style.backgroundColor = 
+                    selectedRow === patient.id ? "#ffffcc" :
+                    patient.status === "flagged" ? "#ffe5e5" :
+                    index % 2 === 0 ? "white" : "#f9f9f9";
+                row.style.cursor = "pointer";
+                row.onclick = () => {
+                    selectedRow = patient.id;
+                    renderTable();
+                };
+
+                row.innerHTML = `
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px; text-align: center;">
+                        ${patient.status === "flagged" ? '<span style="color: #ff0000; font-weight: bold;">!</span>' : ''}
+                        ${patient.status === "satisfied" ? '<span style="color: #008000;">✓</span>' : ''}
+                    </td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">
+                        <div style="color: #0066cc; text-decoration: underline; cursor: pointer;">${patient.name}</div>
+                        <div style="font-size: 10px; color: #666;">${patient.sex} ${patient.age} (${patient.dob})</div>
+                    </td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px; font-family: monospace;">${patient.mrn}</td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">
+                        <div>${patient.edVisit}</div>
+                        <div style="font-size: 10px; color: #666;">DC: ${patient.dischargeTime}</div>
+                    </td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">${patient.cultureType}</td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">
+                        <div style="font-weight: bold;">${patient.cultureResult}</div>
+                        ${patient.colonyCount ? `<div style="font-size: 10px; color: #666;">${patient.colonyCount}</div>` : ''}
+                        <button onclick="event.stopPropagation(); handleViewCulture(patients[${patients.indexOf(patient)}])" style="${epicButtonStyle} padding: 1px 4px; font-size: 10px; margin-top: 2px;">View</button>
+                    </td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px; font-size: 10px;">${patient.prescribedAntibiotic}</td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px; text-align: center;">
+                        ${patient.sensitivity === "RESISTANT" ? '<span style="background-color: #ff0000; color: white; padding: 1px 4px; font-size: 10px; font-weight: bold;">R</span>' : ''}
+                        ${patient.sensitivity === "SENSITIVE" ? '<span style="background-color: #008000; color: white; padding: 1px 4px; font-size: 10px;">S</span>' : ''}
+                    </td>
+                    <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">
+                        ${patient.status === "flagged" ? `<button onclick="event.stopPropagation(); showBPAModal(patients[${patients.indexOf(patient)}])" style="${epicButtonStyle} background-color: #ff6600; color: black; border: 1px solid #cc5200; font-weight: bold;">Review</button>` : ''}
+                        ${patient.contacted ? '<span style="color: #008000; font-size: 10px;">✓ Done</span>' : ''}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            // Update status bar
+            document.getElementById('statusText').textContent = `${filteredPatients.length} items`;
+            
+            // Update alert badge
+            const flaggedCount = filteredPatients.filter(p => p.status === "flagged").length;
+            const alertBadge = document.getElementById('alertBadge');
+            if (flaggedCount > 0 && activeSection === "flagged") {
+                alertBadge.style.display = 'inline-block';
+                alertBadge.textContent = `${flaggedCount} RESISTANT CULTURES - ACTION REQUIRED`;
+            } else {
+                alertBadge.style.display = 'none';
+            }
+        }
+
+        function renderCultureModal() {
+            if (!selectedPatient) return;
+            
+            document.getElementById('cultureModalTitle').textContent = `Microbiology - ${selectedPatient.accession || 'N/A'}`;
+            
+            const content = document.getElementById('cultureModalContent');
+            content.innerHTML = `
+                <div style="background-color: #f0f0f0; border: 1px solid #c0c0c0; padding: 4px; margin-bottom: 8px; font-size: 11px;">
+                    <strong>${selectedPatient.name}</strong> | MRN: ${selectedPatient.mrn} | ${selectedPatient.sex} ${selectedPatient.age} (${selectedPatient.dob}) | Ordering: ${selectedPatient.orderingProvider}
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 8px;">
+                    <tr>
+                        <td style="background-color: #e0e0e0; border: 1px solid #b0b0b0; padding: 2px 4px; width: 150px;"><strong>Specimen Type:</strong></td>
+                        <td style="border: 1px solid #b0b0b0; padding: 2px 4px;">${selectedPatient.cultureType}</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #e0e0e0; border: 1px solid #b0b0b0; padding: 2px 4px;"><strong>Collected:</strong></td>
+                        <td style="border: 1px solid #b0b0b0; padding: 2px 4px;">${selectedPatient.specimenCollected || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #e0e0e0; border: 1px solid #b0b0b0; padding: 2px 4px;"><strong>Resulted:</strong></td>
+                        <td style="border: 1px solid #b0b0b0; padding: 2px 4px;">${selectedPatient.resultedDate}</td>
+                    </tr>
+                </table>
+                
+                <div style="background-color: #dde9f7; border: 1px solid #4a7eba; padding: 4px; margin-bottom: 8px; font-size: 12px; font-weight: bold;">
+                    ORGANISM: ${selectedPatient.cultureResult}${selectedPatient.colonyCount ? ` - ${selectedPatient.colonyCount}` : ''}
+                </div>
+                
+                ${selectedPatient.resistance ? renderSusceptibilityTable(selectedPatient.resistance) : ''}
+                
+                <div style="margin-top: 12px; text-align: right;">
+                    <button onclick="closeCultureModal()" style="${epicButtonStyle}">Close</button>
+                </div>
+            `;
+            
+            document.getElementById('cultureModal').classList.add('show');
+        }
+
+        function renderSusceptibilityTable(resistance) {
+            let html = `
+                <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px;">ANTIMICROBIAL SUSCEPTIBILITY</div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                    <thead>
+                        <tr style="background-color: #e0e0e0;">
+                            <th style="border: 1px solid #b0b0b0; padding: 2px 4px; text-align: left;">Antibiotic</th>
+                            <th style="border: 1px solid #b0b0b0; padding: 2px 4px; text-align: center; width: 80px;">MIC</th>
+                            <th style="border: 1px solid #b0b0b0; padding: 2px 4px; text-align: center; width: 60px;">Interp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            resistance.sensitiveTo.forEach(item => {
+                html += `
+                    <tr>
+                        <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">${item.drug}</td>
+                        <td style="border: 1px solid #d0d0d0; padding: 2px 4px; text-align: center;">${item.mic}</td>
+                        <td style="border: 1px solid #d0d0d0; padding: 2px 4px; text-align: center; background-color: #90ee90; font-weight: bold;">S</td>
+                    </tr>
+                `;
+            });
+            
+            resistance.resistantTo.forEach(item => {
+                html += `
+                    <tr>
+                        <td style="border: 1px solid #d0d0d0; padding: 2px 4px;">${item.drug}</td>
+                        <td style="border: 1px solid #d0d0d0; padding: 2px 4px; text-align: center;">${item.mic}</td>
+                        <td style="border: 1px solid #d0d0d0; padding: 2px 4px; text-align: center; background-color: #ffb6c1; font-weight: bold;">R</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function closeCultureModal() {
+            document.getElementById('cultureModal').classList.remove('show');
+        }
+
+        function showBPAModal(patient) {
+            selectedPatient = patient;
+            selectedAlternative = null;
+            
+            const content = document.getElementById('bpaModalContent');
+            content.innerHTML = `
+                <div style="background-color: #fff3cd; border: 1px solid #ff6600; padding: 8px; margin-bottom: 12px; font-size: 12px;">
+                    <strong>⚠ WARNING:</strong> Patient is taking ${patient.prescribedAntibiotic} but culture shows RESISTANCE. Patient may experience treatment failure if not changed.
+                </div>
+                
+                <div style="margin-bottom: 12px; font-size: 12px;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="width: 50%;">
+                                <strong>Patient:</strong> ${patient.name}<br>
+                                <strong>MRN:</strong> ${patient.mrn}<br>
+                                <strong>Phone:</strong> ${patient.phone}
+                            </td>
+                            <td>
+                                <strong>Culture:</strong> ${patient.cultureType}<br>
+                                <strong>Organism:</strong> ${patient.cultureResult}<br>
+                                <strong>Current Rx:</strong> <span style="color: #ff0000;">${patient.prescribedAntibiotic}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="background-color: #f8f8f8; border: 1px solid #d0d0d0; padding: 8px; margin-bottom: 12px;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">
+                        RECOMMENDED ALTERNATIVES (Culture Sensitive):
+                    </div>
+                    <div id="alternativesList"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button onclick="handleViewCulture(selectedPatient)" style="${epicButtonStyle} text-decoration: underline;">View Full Culture Report</button>
+                    <div>
+                        <button onclick="closeBPAModal()" style="${epicButtonStyle} margin-right: 4px;">Cancel</button>
+                        <button id="acceptButton" onclick="handlePrescribeAlternative()" disabled style="${epicButtonStyle} background-color: #cccccc; color: #666666; border: 1px solid #999999; font-weight: bold;">Accept Recommendation</button>
+                    </div>
+                </div>
+            `;
+            
+            // Render alternatives
+            const alternativesContainer = document.getElementById('alternativesList');
+            patient.alternatives.forEach((alt, index) => {
+                const div = document.createElement('div');
+                div.style = `margin-bottom: 8px; padding: 6px; border: 1px solid #d0d0d0; background-color: white; cursor: pointer;`;
+                div.onclick = () => selectAlternative(alt);
+                
+                div.innerHTML = `
+                    <div style="display: flex; align-items: flex-start;">
+                        <input type="radio" name="alternative" style="margin-right: 8px; margin-top: 2px;">
+                        <div style="flex: 1; font-size: 11px;">
+                            <div style="font-weight: bold;">
+                                ${alt.drug} ${alt.dose} ${alt.route}
+                                ${alt.firstLine ? '<span style="margin-left: 8px; background-color: #28a745; color: white; padding: 1px 4px; font-size: 10px; border-radius: 2px;">PREFERRED</span>' : ''}
+                            </div>
+                            <div>${alt.sig}</div>
+                            <div style="color: #666; font-size: 10px;">${alt.notes} | Cost: ${alt.cost} | ${alt.formularyStatus}</div>
+                        </div>
+                    </div>
+                `;
+                
+                alternativesContainer.appendChild(div);
+            });
+            
+            document.getElementById('bpaModal').classList.add('show');
+        }
+
+        function selectAlternative(alt) {
+            selectedAlternative = alt;
+            
+            // Update UI
+            const alternatives = document.querySelectorAll('#alternativesList > div');
+            alternatives.forEach(div => {
+                if (div.textContent.includes(alt.drug)) {
+                    div.style.border = '2px solid #0066cc';
+                    div.style.backgroundColor = '#e6f2ff';
+                    div.querySelector('input[type="radio"]').checked = true;
+                } else {
+                    div.style.border = '1px solid #d0d0d0';
+                    div.style.backgroundColor = 'white';
+                    div.querySelector('input[type="radio"]').checked = false;
+                }
+            });
+            
+            // Enable accept button
+            const acceptBtn = document.getElementById('acceptButton');
+            acceptBtn.disabled = false;
+            acceptBtn.style = `${epicButtonStyle} background-color: #0066cc; color: white; border: 1px solid #0052cc; font-weight: bold;`;
+        }
+
+        function closeBPAModal() {
+            document.getElementById('bpaModal').classList.remove('show');
+        }
+
+        function showOrderModal() {
+            const content = document.getElementById('orderModalContent');
+            content.innerHTML = `
+                <div style="background-color: #ffffcc; border: 1px solid #cccc00; padding: 6px; margin-bottom: 8px; font-size: 11px;">
+                    <strong>NEW ORDER:</strong><br>
+                    ${selectedAlternative.drug} ${selectedAlternative.dose} ${selectedAlternative.route}<br>
+                    ${selectedAlternative.sig}<br>
+                    Dispense: ${selectedAlternative.dispense}
+                </div>
+                
+                <fieldset style="border: 1px solid #c0c0c0; padding: 8px; margin-bottom: 8px;">
+                    <legend style="font-size: 11px; font-weight: bold;">Patient Notification</legend>
+                    <div style="font-size: 11px;">
+                        <label style="display: block; margin-bottom: 4px;">
+                            <input type="radio" name="contact" value="sms" onchange="contactMethod='sms'" style="margin-right: 4px;">
+                            MyChart Message (SMS to ${selectedPatient.phone})
+                        </label>
+                        <label style="display: block; margin-bottom: 4px;">
+                            <input type="radio" name="contact" value="ai-voice" onchange="contactMethod='ai-voice'" style="margin-right: 4px;">
+                            Automated Voice Call
+                        </label>
+                        <label style="display: block;">
+                            <input type="radio" name="contact" value="manual" onchange="contactMethod='manual'" style="margin-right: 4px;">
+                            Manual Phone Call
+                        </label>
+                    </div>
+                </fieldset>
+                
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 11px; font-weight: bold;">Progress Note:</label>
+                    <div style="border: 1px solid #a0a0a0; padding: 4px; font-size: 11px; background-color: #f9f9f9; min-height: 60px;">
+                        .CULTURECHANGE<br>
+                        Culture result shows resistance to ${selectedPatient.prescribedAntibiotic}. Changed to ${selectedAlternative.drug} based on sensitivities. Patient notified via <span id="notificationMethod">TBD</span>.
+                    </div>
+                </div>
+                
+                <div style="background-color: #e8f4f8; border: 1px solid #4a7eba; padding: 4px; margin-bottom: 8px; font-size: 10px;">
+                    <strong>Actions pending:</strong>
+                    <ul style="margin: 2px 0 0 20px; padding: 0;">
+                        <li>Discontinue ${selectedPatient.prescribedAntibiotic}</li>
+                        <li>Order ${selectedAlternative.drug}</li>
+                        <li>Send to Pharmacy</li>
+                        <li>Notify patient</li>
+                        <li>Document in chart</li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: right;">
+                    <button onclick="closeOrderModal()" style="${epicButtonStyle} margin-right: 4px;">Cancel</button>
+                    <button onclick="handleSendCommunication()" id="signOrdersBtn" disabled style="${epicButtonStyle} background-color: #cccccc; color: #666666; border: 1px solid #999999; font-weight: bold;">Sign Orders</button>
+                </div>
+            `;
+            
+            document.getElementById('orderModal').classList.add('show');
+            
+            // Update notification method text when radio changes
+            document.querySelectorAll('input[name="contact"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const methodText = {
+                        'sms': 'MyChart message',
+                        'ai-voice': 'automated call',
+                        'manual': 'phone call'
+                    };
+                    document.getElementById('notificationMethod').textContent = methodText[radio.value];
+                    
+                    // Enable sign button
+                    const signBtn = document.getElementById('signOrdersBtn');
+                    signBtn.disabled = false;
+                    signBtn.style = `${epicButtonStyle} background-color: #28a745; color: white; border: 1px solid #1e7e34; font-weight: bold;`;
+                });
+            });
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('show');
+            contactMethod = null;
+        }
+
+        function showSuccessMessage() {
+            document.getElementById('successMessage').style.display = 'block';
+        }
+
+        function hideSuccessMessage() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Event listeners
+        document.getElementById('filterSelect').addEventListener('change', (e) => {
+            activeSection = e.target.value;
+            renderTable();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderTable();
+        });
+
+        // Initialize
+        renderTable();
+    </script>
+</body>
+</html>
